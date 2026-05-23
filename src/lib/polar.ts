@@ -16,15 +16,13 @@ export async function createCheckoutSession(input: {
   productId: string;
   customerEmail: string;
   successUrl: string;
-  cancelUrl: string;
 }) {
   const polar = getPolarClient();
 
   const checkout = await polar.checkouts.create({
-  products: [input.productId],
-  customerEmail: input.customerEmail,
-  successUrl: input.successUrl,
-  cancelUrl: input.cancelUrl,
+    products: [input.productId],
+    customerEmail: input.customerEmail,
+    successUrl: input.successUrl,
   });
 
   return checkout;

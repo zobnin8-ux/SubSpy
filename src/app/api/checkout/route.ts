@@ -24,7 +24,6 @@ export async function POST(request: Request) {
       productId,
       customerEmail: user.email!,
       successUrl: `${origin}/success`,
-      cancelUrl: `${origin}/cancel`,
     });
 
     return NextResponse.json({ url: checkout.url });
