@@ -30,8 +30,8 @@ export default function PrivacyPage() {
       <h2>Third parties</h2>
       <p>
         We use Supabase (database/auth), OpenAI (receipt parsing), Resend
-        (alert emails), Polar (billing), and Cloudflare (email intake). Each
-        provider processes data according to their own policies.
+        (alert emails), and Cloudflare (email intake). Each provider processes
+        data according to their own policies.
       </p>
 
       <h2>Contact</h2>

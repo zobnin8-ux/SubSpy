@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { CopyButton } from "@/components/copy-button";
 import { TelegramConnect } from "@/components/telegram-connect";
+import { planLabel } from "@/lib/access";
 import { requireProfile } from "@/lib/profile";
 import { FORWARD_DOMAIN, GMAIL_FILTER } from "@/lib/utils";
 
@@ -26,6 +25,23 @@ export default async function SettingsPage() {
       </div>
 
       <div className="space-y-6">
+        <Card className="border-border/60 bg-card/50">
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+            <CardDescription>Your beta account details.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>
+              <span className="text-muted-foreground">Email: </span>
+              {profile.email}
+            </p>
+            <p>
+              <span className="text-muted-foreground">Status: </span>
+              {planLabel(profile.plan)}
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="border-border/60 bg-card/50">
           <CardHeader>
             <CardTitle>Forwarding alias</CardTitle>
@@ -62,7 +78,7 @@ export default async function SettingsPage() {
           <CardHeader>
             <CardTitle>Telegram alerts</CardTitle>
             <CardDescription>
-              Optional. Pro plan required for Telegram notifications.
+              Optional renewal alerts via Telegram during beta.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -70,21 +86,6 @@ export default async function SettingsPage() {
               chatId={profile.telegram_chat_id}
               plan={profile.plan}
             />
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/60 bg-card/50">
-          <CardHeader>
-            <CardTitle>Billing</CardTitle>
-            <CardDescription>Manage your SubSpy plan.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Current plan: <span className="capitalize text-foreground">{profile.plan}</span>
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/billing">Manage billing</Link>
-            </Button>
           </CardContent>
         </Card>
       </div>

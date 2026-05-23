@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { canUseProduct } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -11,18 +12,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { chatId } = await request.json();
-
   const { data: profile } = await supabase
     .from("profiles")
     .select("plan")
     .eq("id", user.id)
     .single();
 
-  const isPro = profile?.plan === "pro" || profile?.plan === "lifetime";
-  if (!isPro) {
-    return NextResponse.json({ error: "Pro plan required" }, { status: 403 });
+  if (!profile || !canUseProduct(profile)) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
+
+  const { chatId } = await request.json();
 
   const { error } = await supabase
     .from("profiles")

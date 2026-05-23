@@ -1,4 +1,4 @@
-export type UserPlan = "free" | "pro" | "lifetime";
+export type UserPlan = "free" | "beta" | "pro" | "lifetime";
 
 export interface Profile {
   id: string;
@@ -42,5 +42,4 @@ export interface ParsedSubscription {
   status: string;
 }
 
-export const FREE_SUBSCRIPTION_LIMIT = 5;
 export const ALERT_DAYS_BEFORE = 3;

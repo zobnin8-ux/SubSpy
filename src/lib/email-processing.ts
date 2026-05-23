@@ -1,6 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/admin";
+import { BETA_LIMITS, canUseProduct } from "@/lib/access";
 import { parseReceiptEmail } from "@/lib/parsing";
-import { FREE_SUBSCRIPTION_LIMIT } from "@/lib/types";
 
 export async function processIncomingEmail(input: {
   alias: string;
@@ -18,6 +18,23 @@ export async function processIncomingEmail(input: {
 
   if (!profile) {
     return { ok: false, error: "Unknown alias" as const };
+  }
+
+  if (!canUseProduct(profile)) {
+    return { ok: false, error: "Access denied" as const };
+  }
+
+  const startOfDay = new Date();
+  startOfDay.setUTCHours(0, 0, 0, 0);
+
+  const { count: emailsToday } = await supabase
+    .from("email_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", profile.id)
+    .gte("created_at", startOfDay.toISOString());
+
+  if ((emailsToday ?? 0) >= BETA_LIMITS.maxEmailsPerDay) {
+    return { ok: true, limitReached: true as const, reason: "emails" as const };
   }
 
   const raw = `From: ${input.from}\nSubject: ${input.subject}\n\n${input.body}`;
@@ -57,13 +74,15 @@ export async function processIncomingEmail(input: {
       .eq("user_id", profile.id)
       .eq("status", "active");
 
-    const isPro = profile.plan === "pro" || profile.plan === "lifetime";
-    if (!isPro && (count ?? 0) >= FREE_SUBSCRIPTION_LIMIT) {
+    if ((count ?? 0) >= BETA_LIMITS.maxSubscriptions) {
       await supabase
         .from("email_logs")
-        .update({ parse_status: "limit_reached", parsed_at: new Date().toISOString() })
+        .update({
+          parse_status: "limit_reached",
+          parsed_at: new Date().toISOString(),
+        })
         .eq("id", emailLog.id);
-      return { ok: true, limitReached: true as const };
+      return { ok: true, limitReached: true as const, reason: "subscriptions" as const };
     }
 
     const { data: existing } = await supabase

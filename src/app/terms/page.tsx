@@ -19,10 +19,10 @@ export default function TermsPage() {
         <li>Use the service for personal subscription tracking</li>
       </ul>
 
-      <h2>Billing</h2>
+      <h2>Beta access</h2>
       <p>
-        Pro subscriptions are billed monthly via Polar. You may cancel at any
-        time; access continues until the end of the billing period.
+        SubSpy is currently offered as a free private beta. Paid plans may be
+        introduced later. No payment is required during the beta phase.
       </p>
 
       <h2>Limitation of liability</h2>

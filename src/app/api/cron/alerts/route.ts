@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase/admin";
+import { canUseProduct } from "@/lib/access";
 import { sendRenewalAlertEmail, sendTelegramAlert } from "@/lib/alerts";
+import { createServiceClient } from "@/lib/supabase/admin";
 import { ALERT_DAYS_BEFORE } from "@/lib/types";
 import { daysUntil } from "@/lib/utils";
 
@@ -31,8 +32,9 @@ export async function GET(request: Request) {
       telegram_chat_id: string | null;
     };
 
-    const isPro = profile.plan === "pro" || profile.plan === "lifetime";
-    if (!isPro) continue;
+    if (!canUseProduct({ plan: profile.plan as "free" | "beta" | "pro" | "lifetime" })) {
+      continue;
+    }
 
     const { data: existingAlert } = await supabase
       .from("alerts_sent")

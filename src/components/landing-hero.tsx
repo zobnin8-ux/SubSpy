@@ -26,14 +26,17 @@ export function LandingHero() {
           transition={{ duration: 0.7, delay: 0.1 }}
         >
           <p className="mb-4 text-sm uppercase tracking-widest text-muted-foreground">
-            Subscription renewal alerts
+            Free private beta
           </p>
           <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
             Your subscriptions quietly spend money while you live your life.
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Forward receipt emails. SubSpy detects recurring charges and warns you
-            before they renew — no bank access, no budgeting apps, no noise.
+            Forward your receipt emails. SubSpy detects recurring subscriptions and
+            warns you before renewals.
+          </p>
+          <p className="mx-auto mt-3 text-sm text-muted-foreground">
+            SubSpy is currently a free private beta.
           </p>
           <motion.div
             className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
@@ -43,12 +46,12 @@ export function LandingHero() {
           >
             <Button asChild size="lg" className="glow-subtle">
               <Link href="/login">
-                Get started free
+                Join the Beta
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/pricing">View pricing</Link>
+              <Link href="/pricing">About beta</Link>
             </Button>
           </motion.div>
         </motion.div>
@@ -110,7 +113,7 @@ export function LandingHero() {
             Three steps: copy a filter, forward receipts, done.
           </p>
           <Button asChild className="mt-8" size="lg">
-            <Link href="/login">Start in 2 minutes</Link>
+            <Link href="/login">Join the Beta</Link>
           </Button>
         </div>
       </section>

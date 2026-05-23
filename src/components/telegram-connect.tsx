@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { canUseProduct } from "@/lib/access";
 import type { UserPlan } from "@/lib/types";
 
 export function TelegramConnect({
@@ -17,7 +18,13 @@ export function TelegramConnect({
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const isPro = plan === "pro" || plan === "lifetime";
+  if (!canUseProduct({ plan })) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Beta access required to configure Telegram alerts.
+      </p>
+    );
+  }
 
   async function save() {
     setLoading(true);
@@ -36,18 +43,10 @@ export function TelegramConnect({
     }
   }
 
-  if (!isPro) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Upgrade to Pro to enable Telegram alerts.
-      </p>
-    );
-  }
-
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Message @SubSpyBot on Telegram, then paste your chat ID below.
+        Message your Telegram bot, then paste your chat ID below.
       </p>
       <div className="space-y-2">
         <Label htmlFor="telegram">Telegram chat ID</Label>

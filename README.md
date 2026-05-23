@@ -2,6 +2,8 @@
 
 Detect recurring subscriptions from forwarded email receipts and get warned before renewals.
 
+**Current phase:** free private beta — no billing or payment provider required.
+
 ## Stack
 
 - **Frontend**: Next.js 15, TypeScript, Tailwind, shadcn/ui
@@ -9,7 +11,6 @@ Detect recurring subscriptions from forwarded email receipts and get warned befo
 - **Email intake**: Cloudflare Email Workers
 - **Parsing**: OpenAI gpt-4o-mini
 - **Alerts**: Resend (+ optional Telegram)
-- **Billing**: Polar.sh
 - **Hosting**: Vercel
 
 ## Quick start
@@ -24,7 +25,7 @@ npm install
 
 1. Create a Supabase project
 2. Enable Google OAuth (and optional email magic link) in Authentication
-3. Run the migration in `supabase/migrations/001_initial_schema.sql`
+3. Run migrations in `supabase/migrations/` (001 then 002)
 4. Copy URL and keys to `.env.local`
 
 ### 3. Environment
@@ -33,7 +34,7 @@ npm install
 cp .env.example .env.local
 ```
 
-Fill in all required values.
+Fill in Supabase, OpenAI, Resend, and intake/cron secrets. No Polar or Stripe keys needed.
 
 ### 4. Run locally
 
@@ -53,13 +54,15 @@ Open [http://localhost:3000](http://localhost:3000).
 ### 6. Deploy to Vercel
 
 1. Connect repo to Vercel
-2. Add all env vars from `.env.example`
-3. Set `CRON_SECRET` — Vercel Cron will call `/api/cron/alerts` daily
+2. Add env vars from `.env.example`
+3. Set `CRON_SECRET` — Vercel Cron calls `/api/cron/alerts` daily
 
-### 7. Polar billing
+## Beta limits
 
-1. Create a $4/month product in Polar
-2. Set `POLAR_PRO_PRODUCT_ID` and webhook URL: `https://your-domain/api/webhooks/polar`
+Hardcoded in `src/lib/access.ts`:
+
+- Max 20 active subscriptions per user
+- Max 50 processed emails per user per day
 
 ## Project structure
 
@@ -67,20 +70,24 @@ Open [http://localhost:3000](http://localhost:3000).
 src/
   app/           # Next.js pages and API routes
   components/    # UI components
-  lib/           # Supabase, parsing, alerts, billing
+  lib/           # Supabase, parsing, alerts, access control
 supabase/
   migrations/    # Database schema + RLS
 workers/email/   # Cloudflare Email Worker
-docs/            # Technical specification
+docs/            # Technical specifications
 ```
 
 ## Core flow
 
-1. User signs up → gets unique `@in.subspy.app` alias
+1. User signs up → gets unique `@in.subspy.app` alias (`plan = beta`)
 2. User sets Gmail filter → forwards receipts
 3. Cloudflare worker receives email → POSTs to `/api/email/intake`
 4. OpenAI parses receipt → subscription upserted (dedup by user + service + amount + cycle)
 5. Daily cron finds renewals in 3 days → sends email/Telegram alerts
+
+## Future billing
+
+Payment integration (Polar/Stripe) is intentionally removed for validation. Use `canUseProduct()` in `src/lib/access.ts` when adding paid plans later.
 
 ## License
 
