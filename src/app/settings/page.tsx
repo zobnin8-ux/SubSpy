@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CopyButton } from "@/components/copy-button";
+import { ReceiptTester } from "@/components/receipt-tester";
 import { TelegramConnect } from "@/components/telegram-connect";
 import { planLabel } from "@/lib/access";
 import { requireProfile } from "@/lib/profile";
@@ -42,11 +43,25 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
 
+        <Card className="border-primary/30 bg-card/80">
+          <CardHeader>
+            <CardTitle>Test receipt (beta)</CardTitle>
+            <CardDescription>
+              Email forwarding needs a domain later. For now, paste a receipt
+              here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ReceiptTester />
+          </CardContent>
+        </Card>
+
         <Card className="border-border/60 bg-card/50">
           <CardHeader>
             <CardTitle>Forwarding alias</CardTitle>
             <CardDescription>
-              Forward subscription receipts to this address.
+              Works when you connect domain {FORWARD_DOMAIN}. Save this for
+              later.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -57,7 +72,9 @@ export default async function SettingsPage() {
         <Card className="border-border/60 bg-card/50">
           <CardHeader>
             <CardTitle>Gmail setup</CardTitle>
-            <CardDescription>Three steps — copy, paste, done.</CardDescription>
+            <CardDescription>
+              Available after you connect domain {FORWARD_DOMAIN}.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             <div>

@@ -1,28 +1,24 @@
 import { createServiceClient } from "@/lib/supabase/admin";
 import { BETA_LIMITS, canUseProduct } from "@/lib/access";
 import { parseReceiptEmail } from "@/lib/parsing";
+import type { UserPlan } from "@/lib/types";
 
-export async function processIncomingEmail(input: {
-  alias: string;
-  from: string;
-  subject: string;
-  body: string;
-}) {
+export type ReceiptProcessResult =
+  | { ok: true; parsed: true; service: string }
+  | { ok: true; ignored: true }
+  | { ok: true; limitReached: true; reason: "emails" | "subscriptions" }
+  | { ok: false; error: string };
+
+export async function processReceiptForUser(
+  userId: string,
+  plan: UserPlan,
+  input: { from: string; subject: string; body: string }
+): Promise<ReceiptProcessResult> {
+  if (!canUseProduct({ plan })) {
+    return { ok: false, error: "Access denied" };
+  }
+
   const supabase = createServiceClient();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, plan")
-    .eq("forward_alias", input.alias.toLowerCase())
-    .single();
-
-  if (!profile) {
-    return { ok: false, error: "Unknown alias" as const };
-  }
-
-  if (!canUseProduct(profile)) {
-    return { ok: false, error: "Access denied" as const };
-  }
 
   const startOfDay = new Date();
   startOfDay.setUTCHours(0, 0, 0, 0);
@@ -30,11 +26,15 @@ export async function processIncomingEmail(input: {
   const { count: emailsToday } = await supabase
     .from("email_logs")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", profile.id)
+    .eq("user_id", userId)
     .gte("created_at", startOfDay.toISOString());
 
   if ((emailsToday ?? 0) >= BETA_LIMITS.maxEmailsPerDay) {
-    return { ok: true, limitReached: true as const, reason: "emails" as const };
+    return {
+      ok: true,
+      limitReached: true,
+      reason: "emails",
+    };
   }
 
   const raw = `From: ${input.from}\nSubject: ${input.subject}\n\n${input.body}`;
@@ -42,7 +42,7 @@ export async function processIncomingEmail(input: {
   const { data: emailLog, error: logError } = await supabase
     .from("email_logs")
     .insert({
-      user_id: profile.id,
+      user_id: userId,
       raw,
       parse_status: "pending",
     })
@@ -50,28 +50,24 @@ export async function processIncomingEmail(input: {
     .single();
 
   if (logError || !emailLog) {
-    return { ok: false, error: "Failed to store email log" as const };
+    return { ok: false, error: "Failed to store email log" };
   }
 
   try {
-    const parsed = await parseReceiptEmail({
-      from: input.from,
-      subject: input.subject,
-      body: input.body,
-    });
+    const parsed = await parseReceiptEmail(input);
 
     if (!parsed.is_subscription) {
       await supabase
         .from("email_logs")
         .update({ parse_status: "ignored", parsed_at: new Date().toISOString() })
         .eq("id", emailLog.id);
-      return { ok: true, ignored: true as const };
+      return { ok: true, ignored: true };
     }
 
     const { count } = await supabase
       .from("subscriptions")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", profile.id)
+      .eq("user_id", userId)
       .eq("status", "active");
 
     if ((count ?? 0) >= BETA_LIMITS.maxSubscriptions) {
@@ -82,20 +78,20 @@ export async function processIncomingEmail(input: {
           parsed_at: new Date().toISOString(),
         })
         .eq("id", emailLog.id);
-      return { ok: true, limitReached: true as const, reason: "subscriptions" as const };
+      return { ok: true, limitReached: true, reason: "subscriptions" };
     }
 
     const { data: existing } = await supabase
       .from("subscriptions")
       .select("id")
-      .eq("user_id", profile.id)
+      .eq("user_id", userId)
       .eq("service", parsed.service)
       .eq("amount", parsed.amount)
       .eq("cycle", parsed.cycle)
       .maybeSingle();
 
     const subscriptionData = {
-      user_id: profile.id,
+      user_id: userId,
       service: parsed.service,
       amount: parsed.amount,
       currency: parsed.currency,
@@ -119,12 +115,37 @@ export async function processIncomingEmail(input: {
       .update({ parse_status: "parsed", parsed_at: new Date().toISOString() })
       .eq("id", emailLog.id);
 
-    return { ok: true, parsed: true as const };
+    return { ok: true, parsed: true, service: parsed.service };
   } catch {
     await supabase
       .from("email_logs")
       .update({ parse_status: "failed", parsed_at: new Date().toISOString() })
       .eq("id", emailLog.id);
-    return { ok: false, error: "Parse failed" as const };
+    return { ok: false, error: "Parse failed. Check OPENAI_API_KEY on Vercel." };
   }
+}
+
+export async function processIncomingEmail(input: {
+  alias: string;
+  from: string;
+  subject: string;
+  body: string;
+}) {
+  const supabase = createServiceClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, plan")
+    .eq("forward_alias", input.alias.toLowerCase())
+    .single();
+
+  if (!profile) {
+    return { ok: false, error: "Unknown alias" as const };
+  }
+
+  return processReceiptForUser(profile.id, profile.plan as UserPlan, {
+    from: input.from,
+    subject: input.subject,
+    body: input.body,
+  });
 }
