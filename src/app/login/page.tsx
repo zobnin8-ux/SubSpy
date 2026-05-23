@@ -20,22 +20,6 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function signInWithGoogle() {
-    setLoading(true);
-    setError(null);
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-    }
-  }
-
   async function signInWithEmail(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -62,27 +46,10 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle>Sign in to SubSpy</CardTitle>
           <CardDescription>
-            Get warned before your subscriptions renew.
+            Sign in with a magic link sent to your email.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button
-            className="w-full"
-            onClick={signInWithGoogle}
-            disabled={loading}
-          >
-            Continue with Google
-          </Button>
-
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">or</span>
-            </div>
-          </div>
-
           <form onSubmit={signInWithEmail} className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -95,7 +62,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" variant="outline" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading}>
               Send magic link
             </Button>
           </form>
