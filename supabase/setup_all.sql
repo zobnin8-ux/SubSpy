@@ -74,6 +74,9 @@ create policy "Users read own email logs"
 create policy "Users read own subscriptions"
   on public.subscriptions for select using (user_id = auth.uid());
 
+create policy "Users delete own subscriptions"
+  on public.subscriptions for delete using (user_id = auth.uid());
+
 create policy "Users read own alerts"
   on public.alerts_sent for select
   using (

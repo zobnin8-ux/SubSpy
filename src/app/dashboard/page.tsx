@@ -8,13 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SubscriptionCard } from "@/components/subscription-card";
 import { requireProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import type { Subscription } from "@/lib/types";
 import {
   daysUntil,
   formatCurrency,
-  formatDate,
   monthlyEquivalent,
   yearlyEquivalent,
 } from "@/lib/utils";
@@ -129,52 +129,6 @@ function StatCard({
         <div>
           <p className="text-sm text-muted-foreground">{label}</p>
           <p className="text-2xl font-semibold">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function SubscriptionCard({
-  subscription,
-  urgent = false,
-}: {
-  subscription: Subscription;
-  urgent?: boolean;
-}) {
-  const days = subscription.next_renewal
-    ? daysUntil(subscription.next_renewal)
-    : null;
-
-  return (
-    <Card
-      className={
-        urgent
-          ? "border-primary/30 bg-card/80"
-          : "border-border/60 bg-card/50"
-      }
-    >
-      <CardContent className="flex flex-col gap-2 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-medium">{subscription.service}</p>
-          <p className="text-sm text-muted-foreground">
-            {formatCurrency(Number(subscription.amount), subscription.currency)} /{" "}
-            {subscription.cycle}
-          </p>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {subscription.next_renewal ? (
-            <>
-              Renews {formatDate(subscription.next_renewal)}
-              {days !== null && days <= 3 ? (
-                <span className="ml-2 text-foreground">
-                  ({days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`})
-                </span>
-              ) : null}
-            </>
-          ) : (
-            "Renewal date unknown"
-          )}
         </div>
       </CardContent>
     </Card>
