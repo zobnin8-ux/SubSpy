@@ -45,6 +45,16 @@ export default async function DashboardPage() {
     (sub) => sub.next_renewal && daysUntil(sub.next_renewal) <= 7
   );
 
+  const breakdown = items
+    .map((sub) => ({
+      id: sub.id,
+      service: sub.service,
+      currency: sub.currency,
+      monthly: monthlyEquivalent(Number(sub.amount), sub.cycle),
+      yearly: yearlyEquivalent(Number(sub.amount), sub.cycle),
+    }))
+    .sort((a, b) => b.yearly - a.yearly);
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-24">
       <div className="mb-10">
@@ -71,6 +81,49 @@ export default async function DashboardPage() {
           value={String(items.length)}
         />
       </div>
+
+      {items.length > 0 ? (
+        <Card className="mb-10 border-border/60 bg-card/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Breakdown by service</CardTitle>
+            <CardDescription>
+              Normalized monthly and yearly cost per subscription.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-muted-foreground">
+                    <th className="pb-2 pr-4 font-medium">Service</th>
+                    <th className="pb-2 pr-4 text-right font-medium">Monthly</th>
+                    <th className="pb-2 pr-4 text-right font-medium">Yearly</th>
+                    <th className="pb-2 text-right font-medium">Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {breakdown.map((row) => (
+                    <tr key={row.id} className="border-b border-border/50 last:border-0">
+                      <td className="py-2.5 pr-4 font-medium">{row.service}</td>
+                      <td className="py-2.5 pr-4 text-right text-muted-foreground">
+                        {formatCurrency(row.monthly, row.currency)}
+                      </td>
+                      <td className="py-2.5 pr-4 text-right text-muted-foreground">
+                        {formatCurrency(row.yearly, row.currency)}
+                      </td>
+                      <td className="py-2.5 text-right text-muted-foreground">
+                        {yearlyTotal > 0
+                          ? `${Math.round((row.yearly / yearlyTotal) * 100)}%`
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {items.length === 0 ? (
         <Card className="border-border/60 bg-card/50">

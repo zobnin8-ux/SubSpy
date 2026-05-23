@@ -10,6 +10,8 @@ import {
   daysUntil,
   formatCurrency,
   formatDate,
+  monthlyEquivalent,
+  yearlyEquivalent,
 } from "@/lib/utils";
 
 export function SubscriptionCard({
@@ -21,6 +23,9 @@ export function SubscriptionCard({
 }) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const amount = Number(subscription.amount);
+  const monthly = monthlyEquivalent(amount, subscription.cycle);
+  const yearly = yearlyEquivalent(amount, subscription.cycle);
   const days = subscription.next_renewal
     ? daysUntil(subscription.next_renewal)
     : null;
@@ -61,8 +66,11 @@ export function SubscriptionCard({
         <div>
           <p className="font-medium">{subscription.service}</p>
           <p className="text-sm text-muted-foreground">
-            {formatCurrency(Number(subscription.amount), subscription.currency)} /{" "}
-            {subscription.cycle}
+            {formatCurrency(amount, subscription.currency)} / {subscription.cycle}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            ≈ {formatCurrency(monthly, subscription.currency)} / mo · ≈{" "}
+            {formatCurrency(yearly, subscription.currency)} / yr
           </p>
         </div>
         <div className="flex items-center gap-2">
