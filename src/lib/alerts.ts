@@ -1,6 +1,12 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+  return new Resend(apiKey);
+}
 
 export async function sendRenewalAlertEmail(input: {
   to: string;
@@ -24,6 +30,7 @@ export async function sendRenewalAlertEmail(input: {
   const subject = `${input.service} renews ${when}`;
   const text = `${input.service} renews ${when} — $${input.amount}/${cycleLabel}.`;
 
+  const resend = getResendClient();
   await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? "SubSpy <alerts@subspy.app>",
     to: input.to,
