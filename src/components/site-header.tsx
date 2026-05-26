@@ -17,13 +17,20 @@ export async function SiteHeader() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 text-lg font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2 text-lg font-semibold tracking-tight"
+        >
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
             S
           </span>
           SubSpy
         </Link>
+
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
+          <Link href="/#features" className="transition-colors hover:text-foreground">
+            {t.nav.features}
+          </Link>
           <Link href="/pricing" className="transition-colors hover:text-foreground">
             {t.nav.pricing}
           </Link>
@@ -36,21 +43,32 @@ export async function SiteHeader() {
                 {t.nav.settings}
               </Link>
             </>
-          ) : null}
+          ) : (
+            <Link href="/login" className="transition-colors hover:text-foreground">
+              {t.nav.signIn}
+            </Link>
+          )}
         </nav>
+
         <div className="flex items-center gap-2 sm:gap-3">
-          <LanguageSwitcher />
+          <LanguageSwitcher className="hidden sm:flex" />
           {user ? (
             <>
-              <span className="hidden max-w-[140px] truncate text-sm text-muted-foreground lg:inline">
+              <LanguageSwitcher className="sm:hidden" />
+              <span className="hidden max-w-[120px] truncate text-sm text-muted-foreground lg:inline">
                 {user.email}
               </span>
               <SignOutButton label={t.nav.signOut} />
             </>
           ) : (
-            <Button asChild size="sm">
-              <Link href="/login">{t.nav.signIn}</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
+                <Link href="/login">{t.nav.signIn}</Link>
+              </Button>
+              <Button asChild size="sm" className="glow-teal">
+                <Link href="/login">{t.nav.signUp}</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>
