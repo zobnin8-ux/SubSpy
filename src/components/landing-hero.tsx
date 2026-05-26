@@ -4,13 +4,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  BarChart3,
   Bell,
   DollarSign,
   Mail,
   Search,
   Shield,
-  Star,
 } from "lucide-react";
 import { DashboardMockup } from "@/components/dashboard-mockup";
 import { useI18n } from "@/components/i18n-provider";
@@ -55,20 +53,13 @@ export function LandingHero() {
     );
   }
 
-  const stats = [
-    { icon: BarChart3, value: l.stat1Value, label: l.stat1Label },
-    { icon: Bell, value: l.stat2Value, label: l.stat2Label },
-    { icon: DollarSign, value: l.stat3Value, label: l.stat3Label },
-    { icon: Star, value: l.stat4Value, label: l.stat4Label, stars: true },
-  ];
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <section className="relative overflow-hidden px-6 pb-12 pt-28">
+      <section className="relative overflow-hidden px-6 pb-16 pt-28">
         <div className="pointer-events-none absolute inset-0 grid-bg opacity-40" />
         <motion.div
           className="pointer-events-none absolute -left-32 top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl"
@@ -119,23 +110,6 @@ export function LandingHero() {
             </motion.div>
 
             <BenefitBullets className="lg:hidden" />
-          </div>
-
-          <div className="glass-card mt-12 grid gap-6 rounded-2xl border-border/60 p-6 sm:grid-cols-2 lg:grid-cols-4 lg:p-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center lg:text-left">
-                <stat.icon className="mx-auto mb-2 h-5 w-5 text-primary lg:mx-0" />
-                <p className="text-2xl font-bold text-primary sm:text-3xl">{stat.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
-                {stat.stars ? (
-                  <div className="mt-2 flex justify-center gap-0.5 text-amber-400 lg:justify-start">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ))}
           </div>
         </div>
       </section>
