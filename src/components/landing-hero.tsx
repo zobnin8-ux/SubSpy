@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -13,14 +12,15 @@ import {
   Shield,
   Star,
 } from "lucide-react";
+import { HeroMascot } from "@/components/hero-mascot";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export function LandingHero() {
-  const { locale, t } = useI18n();
+  const { t } = useI18n();
   const l = t.landing;
-  const heroSrc = locale === "ru" ? "/hero-ru.png" : "/hero-en.png";
 
   const steps = [
     { step: "1", title: l.step1Title, body: l.step1Body },
@@ -39,6 +39,21 @@ export function LandingHero() {
     { icon: Bell, text: l.bullet2 },
     { icon: DollarSign, text: l.bullet3 },
   ];
+
+  function BenefitBullets({ className }: { className?: string }) {
+    return (
+      <ul className={cn("space-y-3", className)}>
+        {bullets.map((item) => (
+          <li key={item.text} className="flex items-center gap-3 text-sm">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+              <item.icon className="h-4 w-4 text-primary" />
+            </span>
+            <span className="text-muted-foreground">{item.text}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
 
   const stats = [
     { icon: BarChart3, value: l.stat1Value, label: l.stat1Label },
@@ -62,7 +77,7 @@ export function LandingHero() {
         />
 
         <div className="relative mx-auto max-w-6xl">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
+          <div className="flex flex-col gap-10 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -79,43 +94,25 @@ export function LandingHero() {
               </h1>
               <p className="mt-6 max-w-lg text-lg text-muted-foreground">{l.subhead}</p>
 
-              <Button asChild size="lg" className="mt-8 glow-teal h-12 px-8 text-base">
+              <Button asChild size="lg" className="mt-8 h-12 px-8 text-base glow-teal">
                 <Link href="/login">
                   {l.ctaJoin}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
 
-              <ul className="mt-8 space-y-3">
-                {bullets.map((item) => (
-                  <li key={item.text} className="flex items-center gap-3 text-sm">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
-                      <item.icon className="h-4 w-4 text-primary" />
-                    </span>
-                    <span className="text-muted-foreground">{item.text}</span>
-                  </li>
-                ))}
-              </ul>
+              <BenefitBullets className="mt-8 hidden lg:block" />
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative mx-auto w-full max-w-lg lg:max-w-none"
             >
-              <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-primary/15 blur-3xl" />
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/50 shadow-2xl lg:aspect-square">
-                <Image
-                  src={heroSrc}
-                  alt={l.heroImageAlt}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover object-right"
-                />
-              </div>
+              <HeroMascot alt={l.heroImageAlt} />
             </motion.div>
+
+            <BenefitBullets className="lg:hidden" />
           </div>
 
           <div className="glass-card mt-12 grid gap-6 rounded-2xl border-border/60 p-6 sm:grid-cols-2 lg:grid-cols-4 lg:p-8">
