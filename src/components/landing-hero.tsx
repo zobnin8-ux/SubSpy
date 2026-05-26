@@ -12,7 +12,7 @@ import {
   Shield,
   Star,
 } from "lucide-react";
-import { HeroMascot } from "@/components/hero-mascot";
+import { DashboardMockup } from "@/components/dashboard-mockup";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,9 +75,14 @@ export function LandingHero() {
           animate={{ opacity: [0.25, 0.45, 0.25] }}
           transition={{ duration: 7, repeat: Infinity }}
         />
+        <motion.div
+          className="pointer-events-none absolute -right-24 top-40 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl"
+          animate={{ opacity: [0.2, 0.35, 0.2] }}
+          transition={{ duration: 9, repeat: Infinity, delay: 1 }}
+        />
 
         <div className="relative mx-auto max-w-6xl">
-          <div className="flex flex-col gap-10 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
+          <div className="flex flex-col gap-10 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -105,11 +110,12 @@ export function LandingHero() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
+              className="lg:pl-4"
             >
-              <HeroMascot alt={l.heroImageAlt} />
+              <DashboardMockup />
             </motion.div>
 
             <BenefitBullets className="lg:hidden" />
