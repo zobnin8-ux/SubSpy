@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
+import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { fmt } from "@/lib/i18n";
 import type { Subscription } from "@/lib/types";
 import {
   daysUntil,
@@ -38,6 +40,8 @@ export function SubscriptionCard({
   urgent?: boolean;
 }) {
   const router = useRouter();
+  const { t, locale } = useI18n();
+  const s = t.subscription;
   const [deleting, setDeleting] = useState(false);
   const amount = Number(subscription.amount);
   const monthly = monthlyEquivalent(amount, subscription.cycle);
@@ -47,9 +51,14 @@ export function SubscriptionCard({
     : null;
 
   async function handleDelete() {
+    const amountLabel = formatCurrency(amount, subscription.currency);
     if (
       !window.confirm(
-        `Delete ${subscription.service} (${formatCurrency(Number(subscription.amount), subscription.currency)} / ${subscription.cycle})?`
+        fmt(s.deleteConfirm, {
+          service: subscription.service,
+          amount: amountLabel,
+          cycle: subscription.cycle,
+        })
       )
     ) {
       return;
@@ -63,11 +72,18 @@ export function SubscriptionCard({
 
     if (!res.ok) {
       const data = await res.json();
-      window.alert(data.error ?? "Failed to delete subscription.");
+      window.alert(data.error ?? s.deleteFailed);
       return;
     }
 
     router.refresh();
+  }
+
+  function renewalHint() {
+    if (days === null) return null;
+    if (days <= 0) return `(${s.today})`;
+    if (days === 1) return `(${s.tomorrow})`;
+    return `(${fmt(s.inDays, { days })})`;
   }
 
   return (
@@ -85,29 +101,28 @@ export function SubscriptionCard({
             aria-hidden
           />
           <div className="min-w-0">
-          <p className="font-medium">{subscription.service}</p>
-          <p className="text-sm text-muted-foreground">
-            {formatCurrency(amount, subscription.currency)} / {subscription.cycle}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            ≈ {formatCurrency(monthly, subscription.currency)} / mo · ≈{" "}
-            {formatCurrency(yearly, subscription.currency)} / yr
-          </p>
+            <p className="font-medium">{subscription.service}</p>
+            <p className="text-sm text-muted-foreground">
+              {formatCurrency(amount, subscription.currency)} / {subscription.cycle}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ≈ {formatCurrency(monthly, subscription.currency)} / {s.perMonth} · ≈{" "}
+              {formatCurrency(yearly, subscription.currency)} / {s.perYear}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
             {subscription.next_renewal ? (
               <>
-                Renews {formatDate(subscription.next_renewal)}
+                {s.renews}{" "}
+                {formatDate(subscription.next_renewal, locale)}
                 {days !== null && days <= 3 ? (
-                  <span className="ml-2 text-foreground">
-                    ({days <= 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`})
-                  </span>
+                  <span className="ml-2 text-foreground">{renewalHint()}</span>
                 ) : null}
               </>
             ) : (
-              "Renewal date unknown"
+              s.renewalUnknown
             )}
           </div>
           <Button
@@ -117,8 +132,8 @@ export function SubscriptionCard({
             className="shrink-0 text-muted-foreground hover:text-destructive"
             onClick={handleDelete}
             disabled={deleting}
-            aria-label="Delete subscription"
-            title="Delete"
+            aria-label={s.deleteAria}
+            title={s.deleteAria}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

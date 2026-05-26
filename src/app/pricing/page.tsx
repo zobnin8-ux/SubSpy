@@ -7,35 +7,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getServerT } from "@/lib/i18n/server";
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const { t } = await getServerT();
+  const p = t.pricing;
+
   return (
     <div className="px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
-        <h1 className="text-4xl font-semibold tracking-tight">Private beta</h1>
-        <p className="mt-6 text-lg text-muted-foreground">
-          SubSpy is currently in private beta.
-        </p>
-        <p className="mt-4 text-muted-foreground">
-          We are testing whether subscription renewal alerts are useful enough
-          before launching paid plans.
-        </p>
-        <p className="mt-4 text-muted-foreground">
-          For now, early users can try the product for free.
-        </p>
+        <h1 className="text-4xl font-semibold tracking-tight">{p.title}</h1>
+        <p className="mt-6 text-lg text-muted-foreground">{p.p1}</p>
+        <p className="mt-4 text-muted-foreground">{p.p2}</p>
+        <p className="mt-4 text-muted-foreground">{p.p3}</p>
       </div>
 
-      <Card className="mx-auto mt-12 max-w-lg border-border/60 bg-card/50">
+      <Card className="glass-card mx-auto mt-12 max-w-lg border-border/60">
         <CardHeader className="text-center">
-          <CardTitle>Early access</CardTitle>
-          <CardDescription>
-            Forward receipts, track renewals, get alerts — no payment required
-            during beta.
-          </CardDescription>
+          <CardTitle>{p.cardTitle}</CardTitle>
+          <CardDescription>{p.cardSub}</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center pb-8">
-          <Button asChild size="lg" className="glow-subtle">
-            <Link href="/login">Join the Beta</Link>
+          <Button asChild size="lg" className="glow-teal">
+            <Link href="/login">{p.join}</Link>
           </Button>
         </CardContent>
       </Card>

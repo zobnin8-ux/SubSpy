@@ -8,100 +8,94 @@ import {
 import { CopyButton } from "@/components/copy-button";
 import { ReceiptTester } from "@/components/receipt-tester";
 import { TelegramConnect } from "@/components/telegram-connect";
-import { planLabel } from "@/lib/access";
+import { fmt, planLabel } from "@/lib/i18n";
+import { getServerT } from "@/lib/i18n/server";
 import { requireProfile } from "@/lib/profile";
 import { FORWARD_DOMAIN, GMAIL_FILTER } from "@/lib/utils";
+import type { UserPlan } from "@/lib/types";
 
 export default async function SettingsPage() {
+  const { t } = await getServerT();
+  const s = t.settings;
   const profile = await requireProfile();
   const forwardAddress = `${profile.forward_alias}@${FORWARD_DOMAIN}`;
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-24">
       <div className="mb-10">
-        <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-2 text-muted-foreground">
-          Set up email forwarding and notification preferences.
-        </p>
+        <h1 className="text-3xl font-semibold tracking-tight">{s.title}</h1>
+        <p className="mt-2 text-muted-foreground">{s.subtitle}</p>
       </div>
 
       <div className="space-y-6">
-        <Card className="border-border/60 bg-card/50">
+        <Card className="glass-card border-border/60">
           <CardHeader>
-            <CardTitle>Account</CardTitle>
-            <CardDescription>Your beta account details.</CardDescription>
+            <CardTitle>{s.account}</CardTitle>
+            <CardDescription>{s.accountSub}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
-              <span className="text-muted-foreground">Email: </span>
+              <span className="text-muted-foreground">{s.emailLabel} </span>
               {profile.email}
             </p>
             <p>
-              <span className="text-muted-foreground">Status: </span>
-              {planLabel(profile.plan)}
+              <span className="text-muted-foreground">{s.statusLabel} </span>
+              {planLabel(profile.plan as keyof typeof t.plan, t)}
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-primary/30 bg-card/80">
           <CardHeader>
-            <CardTitle>Test receipt (beta)</CardTitle>
-            <CardDescription>
-              Email forwarding needs a domain later. For now, paste a receipt
-              here.
-            </CardDescription>
+            <CardTitle>{s.testReceipt}</CardTitle>
+            <CardDescription>{s.testReceiptSub}</CardDescription>
           </CardHeader>
           <CardContent>
             <ReceiptTester />
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 bg-card/50">
+        <Card className="glass-card border-border/60">
           <CardHeader>
-            <CardTitle>Forwarding alias</CardTitle>
+            <CardTitle>{s.forwardingAlias}</CardTitle>
             <CardDescription>
-              Works when you connect domain {FORWARD_DOMAIN}. Save this for
-              later.
+              {fmt(s.forwardingAliasSub, { domain: FORWARD_DOMAIN })}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CopyButton value={forwardAddress} label="Copy forwarding address" />
+            <CopyButton value={forwardAddress} label={s.copyForwarding} />
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 bg-card/50">
+        <Card className="glass-card border-border/60">
           <CardHeader>
-            <CardTitle>Gmail setup</CardTitle>
+            <CardTitle>{s.gmailSetup}</CardTitle>
             <CardDescription>
-              Available after you connect domain {FORWARD_DOMAIN}.
+              {fmt(s.gmailSetupSub, { domain: FORWARD_DOMAIN })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             <div>
-              <p className="mb-2 font-medium">1. Create a filter with this search:</p>
-              <CopyButton value={GMAIL_FILTER} label="Copy Gmail filter" />
+              <p className="mb-2 font-medium">{s.gmailStep1}</p>
+              <CopyButton value={GMAIL_FILTER} label={s.copyGmailFilter} />
             </div>
             <div>
-              <p className="mb-2 font-medium">2. Forward matching emails to:</p>
-              <CopyButton value={forwardAddress} label="Copy forward address" />
+              <p className="mb-2 font-medium">{s.gmailStep2}</p>
+              <CopyButton value={forwardAddress} label={s.copyForward} />
             </div>
-            <p className="text-muted-foreground">
-              3. Confirm the forwarding address in Gmail when prompted.
-            </p>
+            <p className="text-muted-foreground">{s.gmailStep3}</p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 bg-card/50">
+        <Card className="glass-card border-border/60">
           <CardHeader>
-            <CardTitle>Telegram alerts</CardTitle>
-            <CardDescription>
-              Optional renewal alerts via Telegram during beta.
-            </CardDescription>
+            <CardTitle>{s.telegram}</CardTitle>
+            <CardDescription>{s.telegramSub}</CardDescription>
           </CardHeader>
           <CardContent>
             <TelegramConnect
               chatId={profile.telegram_chat_id}
-              plan={profile.plan}
+              plan={profile.plan as UserPlan}
             />
           </CardContent>
         </Card>

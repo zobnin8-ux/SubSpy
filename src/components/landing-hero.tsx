@@ -3,29 +3,27 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Bell, Mail, Shield } from "lucide-react";
+import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DashboardMockup } from "@/components/dashboard-mockup";
 
-const STEPS = [
-  {
-    step: "1",
-    title: "Forward receipts",
-    body: "One Gmail filter sends subscription emails to your private alias.",
-  },
-  {
-    step: "2",
-    title: "We detect renewals",
-    body: "AI reads receipts and tracks service, price, and billing cycle.",
-  },
-  {
-    step: "3",
-    title: "Get warned early",
-    body: "Calm alerts 3 days before a charge — email or Telegram.",
-  },
-];
-
 export function LandingHero() {
+  const { t } = useI18n();
+  const l = t.landing;
+
+  const steps = [
+    { step: "1", title: l.step1Title, body: l.step1Body },
+    { step: "2", title: l.step2Title, body: l.step2Body },
+    { step: "3", title: l.step3Title, body: l.step3Body },
+  ];
+
+  const features = [
+    { icon: Mail, title: l.feature1Title, body: l.feature1Body },
+    { icon: Shield, title: l.feature2Title, body: l.feature2Body },
+    { icon: Bell, title: l.feature3Title, body: l.feature3Body },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -52,16 +50,14 @@ export function LandingHero() {
             transition={{ duration: 0.7, delay: 0.1 }}
           >
             <p className="mb-4 inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
-              Free private beta
+              {l.betaBadge}
             </p>
             <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
-              Know what renews{" "}
-              <span className="text-primary">before</span> you&apos;re charged.
+              {l.headline}{" "}
+              <span className="text-primary">{l.headlineAccent}</span>{" "}
+              {l.headlineEnd}
             </h1>
-            <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-              Forward receipt emails. SubSpy finds recurring subscriptions and
-              shows your real monthly burn — then warns you 3 days ahead.
-            </p>
+            <p className="mt-6 max-w-lg text-lg text-muted-foreground">{l.subhead}</p>
             <motion.div
               className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
               initial={{ opacity: 0, y: 10 }}
@@ -70,12 +66,12 @@ export function LandingHero() {
             >
               <Button asChild size="lg" className="glow-teal">
                 <Link href="/login">
-                  Join the Beta
+                  {l.ctaJoin}
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-border/80">
-                <Link href="/pricing">How beta works</Link>
+                <Link href="/pricing">{l.ctaHow}</Link>
               </Button>
             </motion.div>
           </motion.div>
@@ -93,19 +89,17 @@ export function LandingHero() {
 
       <section className="border-t border-border/40 bg-card/20 px-6 py-20">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-center text-2xl font-semibold tracking-tight">
-            How it works
-          </h2>
+          <h2 className="text-center text-2xl font-semibold tracking-tight">{l.howTitle}</h2>
           <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted-foreground">
-            Three steps. No bank linking. Receipts only.
+            {l.howSub}
           </p>
           <div className="mt-12 grid gap-8 md:grid-cols-3">
-            {STEPS.map((item, i) => (
+            {steps.map((item, i) => (
               <div key={item.step} className="relative text-center md:text-left">
                 <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground md:mx-0">
                   {item.step}
                 </div>
-                {i < STEPS.length - 1 ? (
+                {i < steps.length - 1 ? (
                   <div
                     className="absolute left-5 top-5 hidden h-px w-[calc(100%+2rem)] bg-gradient-to-r from-primary/50 to-transparent md:block"
                     aria-hidden
@@ -130,23 +124,7 @@ export function LandingHero() {
             visible: { transition: { staggerChildren: 0.1 } },
           }}
         >
-          {[
-            {
-              icon: Mail,
-              title: "Forward receipts",
-              body: "Set a Gmail filter once. Receipts flow to your private alias.",
-            },
-            {
-              icon: Shield,
-              title: "We parse quietly",
-              body: "Only subscription receipts matter. Raw emails delete after 30 days.",
-            },
-            {
-              icon: Bell,
-              title: "Warn before charge",
-              body: "Calm alerts 3 days before renewal. Email or Telegram.",
-            },
-          ].map((item) => (
+          {features.map((item) => (
             <motion.div
               key={item.title}
               variants={{
@@ -154,7 +132,7 @@ export function LandingHero() {
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              <Card className="h-full glass-card border-border/60 transition-colors hover:border-primary/25">
+              <Card className="glass-card h-full border-border/60 transition-colors hover:border-primary/25">
                 <CardContent className="p-6">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
                     <item.icon className="h-5 w-5 text-primary" />
@@ -170,15 +148,11 @@ export function LandingHero() {
 
       <section className="px-6 pb-28">
         <div className="glass-card glow-teal mx-auto max-w-2xl rounded-2xl p-10 text-center">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Stop surprise renewals.
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Join the free beta — paste a receipt today, connect Gmail when you&apos;re ready.
-          </p>
+          <h2 className="text-2xl font-semibold tracking-tight">{l.ctaBottomTitle}</h2>
+          <p className="mt-3 text-muted-foreground">{l.ctaBottomSub}</p>
           <Button asChild className="mt-8 glow-teal" size="lg">
             <Link href="/login">
-              Join the Beta
+              {l.ctaJoin}
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>

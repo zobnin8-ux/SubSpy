@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { I18nProvider } from "@/components/i18n-provider";
 import { SiteHeader } from "@/components/site-header";
+import { getLocale } from "@/lib/i18n/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,18 +21,22 @@ export const metadata: Metadata = {
     "Detect recurring subscriptions from forwarded email receipts and get warned before renewals.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" className="dark">
+    <html lang={locale} className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans`}
       >
-        <SiteHeader />
-        <main>{children}</main>
+        <I18nProvider initialLocale={locale}>
+          <SiteHeader />
+          <main>{children}</main>
+        </I18nProvider>
       </body>
     </html>
   );

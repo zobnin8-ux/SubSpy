@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useI18n } from "@/components/i18n-provider";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
+  const { t } = useI18n();
+  const l = t.login;
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -36,34 +39,32 @@ export default function LoginPage() {
     if (authError) {
       setError(authError.message);
     } else {
-      setMessage("Check your email for a magic link.");
+      setMessage(l.magicLinkSent);
     }
   }
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-6 py-16">
-      <Card className="w-full max-w-md border-border/60 bg-card/50">
+      <Card className="glass-card w-full max-w-md border-border/60">
         <CardHeader>
-          <CardTitle>Sign in to SubSpy</CardTitle>
-          <CardDescription>
-            Sign in with a magic link sent to your email.
-          </CardDescription>
+          <CardTitle>{l.title}</CardTitle>
+          <CardDescription>{l.description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={signInWithEmail} className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{l.email}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={l.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              Send magic link
+            <Button type="submit" className="w-full glow-teal" disabled={loading}>
+              {loading ? l.sending : l.submit}
             </Button>
           </form>
 
@@ -73,13 +74,13 @@ export default function LoginPage() {
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
           <p className="text-center text-xs text-muted-foreground">
-            By signing in you agree to our{" "}
+            {l.termsPrefix}{" "}
             <Link href="/terms" className="underline hover:text-foreground">
-              Terms
+              {l.terms}
             </Link>{" "}
-            and{" "}
+            {l.and}{" "}
             <Link href="/privacy" className="underline hover:text-foreground">
-              Privacy Policy
+              {l.privacy}
             </Link>
             .
           </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,16 +15,14 @@ export function TelegramConnect({
   chatId: string | null;
   plan: UserPlan;
 }) {
+  const { t } = useI18n();
+  const tg = t.telegram;
   const [value, setValue] = useState(chatId ?? "");
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (!canUseProduct({ plan })) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Beta access required to configure Telegram alerts.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">{tg.betaRequired}</p>;
   }
 
   async function save() {
@@ -36,20 +35,18 @@ export function TelegramConnect({
     });
     setLoading(false);
     if (res.ok) {
-      setStatus("Saved.");
+      setStatus(tg.saved);
     } else {
       const data = await res.json();
-      setStatus(data.error ?? "Failed to save.");
+      setStatus(data.error ?? tg.saveFailed);
     }
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Message your Telegram bot, then paste your chat ID below.
-      </p>
+      <p className="text-sm text-muted-foreground">{tg.hint}</p>
       <div className="space-y-2">
-        <Label htmlFor="telegram">Telegram chat ID</Label>
+        <Label htmlFor="telegram">{tg.chatId}</Label>
         <Input
           id="telegram"
           value={value}
@@ -58,7 +55,7 @@ export function TelegramConnect({
         />
       </div>
       <Button onClick={save} disabled={loading}>
-        {loading ? "Saving..." : "Save"}
+        {loading ? tg.saving : tg.save}
       </Button>
       {status ? <p className="text-sm text-muted-foreground">{status}</p> : null}
     </div>

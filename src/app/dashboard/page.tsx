@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SubscriptionCard } from "@/components/subscription-card";
+import { getServerT } from "@/lib/i18n/server";
 import { requireProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import type { Subscription } from "@/lib/types";
@@ -20,6 +21,8 @@ import {
 } from "@/lib/utils";
 
 export default async function DashboardPage() {
+  const { t } = await getServerT();
+  const d = t.dashboard;
   const profile = await requireProfile();
   const supabase = await createClient();
 
@@ -58,27 +61,25 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-5xl px-6 py-24">
       <div className="mb-10">
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="mt-2 text-muted-foreground">
-          Active subscriptions and upcoming renewals.
-        </p>
+        <h1 className="text-3xl font-semibold tracking-tight">{d.title}</h1>
+        <p className="mt-2 text-muted-foreground">{d.subtitle}</p>
       </div>
 
       <div className="mb-10 grid gap-4 sm:grid-cols-3">
         <StatCard
           icon={DollarSign}
-          label="Monthly burn"
+          label={d.monthlyBurn}
           value={formatCurrency(monthlyTotal)}
           highlight
         />
         <StatCard
           icon={TrendingUp}
-          label="Yearly burn"
+          label={d.yearlyBurn}
           value={formatCurrency(yearlyTotal)}
         />
         <StatCard
           icon={CalendarClock}
-          label="Active subscriptions"
+          label={d.activeCount}
           value={String(items.length)}
         />
       </div>
@@ -86,20 +87,18 @@ export default async function DashboardPage() {
       {items.length > 0 ? (
         <Card className="mb-10 glass-card border-border/60">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Breakdown by service</CardTitle>
-            <CardDescription>
-              Normalized monthly and yearly cost per subscription.
-            </CardDescription>
+            <CardTitle className="text-base">{d.breakdownTitle}</CardTitle>
+            <CardDescription>{d.breakdownSub}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-muted-foreground">
-                    <th className="pb-2 pr-4 font-medium">Service</th>
-                    <th className="pb-2 pr-4 text-right font-medium">Monthly</th>
-                    <th className="pb-2 pr-4 text-right font-medium">Yearly</th>
-                    <th className="pb-2 text-right font-medium">Share</th>
+                    <th className="pb-2 pr-4 font-medium">{d.colService}</th>
+                    <th className="pb-2 pr-4 text-right font-medium">{d.colMonthly}</th>
+                    <th className="pb-2 pr-4 text-right font-medium">{d.colYearly}</th>
+                    <th className="pb-2 text-right font-medium">{d.colShare}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,18 +128,15 @@ export default async function DashboardPage() {
       {items.length === 0 ? (
         <Card className="glass-card border-border/60">
           <CardHeader>
-            <CardTitle>No subscriptions yet</CardTitle>
-            <CardDescription>
-              Paste a receipt in Settings to test now, or forward emails when your
-              domain is connected.
-            </CardDescription>
+            <CardTitle>{d.emptyTitle}</CardTitle>
+            <CardDescription>{d.emptySub}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
             <Button asChild className="glow-teal">
-              <Link href="/settings">Paste a receipt</Link>
+              <Link href="/settings">{d.pasteReceipt}</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/settings">Forwarding setup</Link>
+              <Link href="/settings">{d.forwardingSetup}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -148,7 +144,7 @@ export default async function DashboardPage() {
         <div className="space-y-8">
           {upcoming.length > 0 ? (
             <section>
-              <h2 className="mb-4 text-lg font-medium">Renewing soon</h2>
+              <h2 className="mb-4 text-lg font-medium">{d.renewingSoon}</h2>
               <div className="grid gap-4">
                 {upcoming.map((sub) => (
                   <SubscriptionCard key={sub.id} subscription={sub} urgent />
@@ -158,7 +154,7 @@ export default async function DashboardPage() {
           ) : null}
 
           <section>
-            <h2 className="mb-4 text-lg font-medium">All subscriptions</h2>
+            <h2 className="mb-4 text-lg font-medium">{d.allSubscriptions}</h2>
             <div className="grid gap-4">
               {items.map((sub) => (
                 <SubscriptionCard key={sub.id} subscription={sub} />
