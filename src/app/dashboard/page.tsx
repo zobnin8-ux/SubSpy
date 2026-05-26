@@ -69,6 +69,7 @@ export default async function DashboardPage() {
           icon={DollarSign}
           label="Monthly burn"
           value={formatCurrency(monthlyTotal)}
+          highlight
         />
         <StatCard
           icon={TrendingUp}
@@ -83,7 +84,7 @@ export default async function DashboardPage() {
       </div>
 
       {items.length > 0 ? (
-        <Card className="mb-10 border-border/60 bg-card/50">
+        <Card className="mb-10 glass-card border-border/60">
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Breakdown by service</CardTitle>
             <CardDescription>
@@ -126,16 +127,20 @@ export default async function DashboardPage() {
       ) : null}
 
       {items.length === 0 ? (
-        <Card className="border-border/60 bg-card/50">
+        <Card className="glass-card border-border/60">
           <CardHeader>
             <CardTitle>No subscriptions yet</CardTitle>
             <CardDescription>
-              Forward receipt emails to your alias to start tracking renewals.
+              Paste a receipt in Settings to test now, or forward emails when your
+              domain is connected.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link href="/settings">Set up forwarding</Link>
+          <CardContent className="flex flex-wrap gap-3">
+            <Button asChild className="glow-teal">
+              <Link href="/settings">Paste a receipt</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/settings">Forwarding setup</Link>
             </Button>
           </CardContent>
         </Card>
@@ -170,18 +175,40 @@ function StatCard({
   icon: Icon,
   label,
   value,
+  highlight = false,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
+  highlight?: boolean;
 }) {
   return (
-    <Card className="border-border/60 bg-card/50">
+    <Card
+      className={
+        highlight
+          ? "border-primary/35 bg-primary/10"
+          : "glass-card border-border/60"
+      }
+    >
       <CardContent className="flex items-center gap-4 p-6">
-        <Icon className="h-5 w-5 text-muted-foreground" />
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+            highlight ? "bg-primary/20" : "bg-muted"
+          }`}
+        >
+          <Icon
+            className={`h-5 w-5 ${highlight ? "text-primary" : "text-muted-foreground"}`}
+          />
+        </div>
         <div>
           <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-2xl font-semibold">{value}</p>
+          <p
+            className={`text-2xl font-semibold ${
+              highlight ? "text-primary" : ""
+            }`}
+          >
+            {value}
+          </p>
         </div>
       </CardContent>
     </Card>

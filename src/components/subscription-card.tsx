@@ -14,6 +14,22 @@ import {
   yearlyEquivalent,
 } from "@/lib/utils";
 
+const SERVICE_ACCENTS = [
+  "bg-red-500/80",
+  "bg-emerald-500/80",
+  "bg-sky-500/80",
+  "bg-violet-500/80",
+  "bg-amber-500/80",
+];
+
+function serviceAccent(service: string) {
+  let hash = 0;
+  for (let i = 0; i < service.length; i++) {
+    hash = service.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return SERVICE_ACCENTS[Math.abs(hash) % SERVICE_ACCENTS.length];
+}
+
 export function SubscriptionCard({
   subscription,
   urgent = false,
@@ -58,12 +74,17 @@ export function SubscriptionCard({
     <Card
       className={
         urgent
-          ? "border-primary/30 bg-card/80"
-          : "border-border/60 bg-card/50"
+          ? "border-amber-500/35 bg-amber-500/5"
+          : "glass-card border-border/60"
       }
     >
       <CardContent className="flex flex-col gap-2 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="flex min-w-0 gap-3">
+          <span
+            className={`mt-1 h-10 w-1 shrink-0 rounded-full ${serviceAccent(subscription.service)}`}
+            aria-hidden
+          />
+          <div className="min-w-0">
           <p className="font-medium">{subscription.service}</p>
           <p className="text-sm text-muted-foreground">
             {formatCurrency(amount, subscription.currency)} / {subscription.cycle}
@@ -72,6 +93,7 @@ export function SubscriptionCard({
             ≈ {formatCurrency(monthly, subscription.currency)} / mo · ≈{" "}
             {formatCurrency(yearly, subscription.currency)} / yr
           </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
